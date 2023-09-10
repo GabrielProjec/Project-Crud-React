@@ -4,7 +4,8 @@ import {
   GridValueGetterParams,
   GridRenderCellParams,
 } from "@mui/x-data-grid";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { useLocalStorage } from "usehooks-ts";
 
 // ICONS
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -16,18 +17,31 @@ import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import PageTitle from "../../components/PageTitle";
 import DataTable from "../../components/DataTable";
 import Breadcumbs from "../../components/Breadcumbs";
+import { User } from "./types/User";
 
 function List() {
+  const navigate = useNavigate();
+
   const onCall = (params: GridRenderCellParams) => {
-    // Chamada via WhatsApp
+    // se existe o número de telefone, abre o WhatsApp
+    if (!params.row.mobile) return;
+
+    window.location.href = `https://wa.me/55${params.row.mobile.replace(
+      /[^\d]+/g,
+      ""
+    )}`;
   };
 
   const onEdit = (params: GridRenderCellParams) => {
-    // Edição de usuário
+    // se existe o id, navega para a página de edição
+    if (!params.row.id) return;
+    navigate(`/users/${params.row.id}`);
   };
 
   const onDelete = (params: GridRenderCellParams) => {
-    // Exclusão de usuário
+    // se existe o id, remove o usuário
+    if (!params.row.id) return;
+    setUsers(users.filter((user) => user.id !== params.row.id));
   };
 
   const columns: GridColDef[] = [
@@ -88,24 +102,8 @@ function List() {
     },
   ];
 
-  const users = [
-    {
-      id: "1",
-      fullName: "Felipe Fontoura",
-      document: "986.007.560-30",
-      birthDate: new Date(1982, 1, 1),
-      email: "felipe@teste.com.br",
-      emailVerified: true,
-      mobile: "(11) 99999-9999",
-      zipCode: "00000-000",
-      addressName: "Rua Teste",
-      number: "123",
-      complement: "",
-      neighborhood: "Bairro Teste",
-      city: "São Paulo",
-      state: "SP",
-    },
-  ];
+  const [users, setUsers] = useLocalStorage<User[]>("users", []);
+
   return (
     <div>
       <Stack direction={{ xs: "column", sm: "row" }} gap={1} mb={2}>

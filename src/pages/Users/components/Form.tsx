@@ -15,13 +15,13 @@ import {
   Tooltip,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import InputMask from "react-input-mask";
 import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
 import { useLocalStorage } from "usehooks-ts";
 
-// import FormTitle from "../../../components/FormTitle";
+import FormTitle from "../components/FormTitle";
 
 import { findBrazilianZipCode } from "../../../services/api";
 
@@ -46,10 +46,44 @@ export default function Form() {
     resolver: yupResolver(UserSchema),
   });
 
-  const onSubmit = (data: User) => {
-    // registra o usuário
-    console.log(data);
+  useEffect(() => {
+    if (!id) return;
 
+    // busca o usuário pelo id
+    const user = users.find((user) => user.id === id);
+
+    if (!user) return;
+
+    // se encontrado, preenche o formulário via setValue do React Hook Form
+    setValue("fullName", user.fullName);
+    setValue("document", user.document);
+    setValue("birthDate", new Date(user.birthDate));
+    setValue("email", user.email);
+    setValue("emailVerified", user.emailVerified);
+    setValue("mobile", user.mobile);
+    setValue("zipCode", user.zipCode);
+    setValue("addressName", user.addressName);
+    setValue("number", user.number);
+    setValue("complement", user.complement);
+    setValue("neighborhood", user.neighborhood);
+    setValue("city", user.city);
+    setValue("state", user.state);
+  }, [id, setValue, users]);
+
+  const onSubmit = (data: User) => {
+    // se não tiver id, cria um novo usuário
+    if (!id) {
+      setUsers([...users, { ...data, id: `${users.length + 1}` }]);
+    } else {
+      // se tiver id, atualiza o usuário
+      const newUsers = [...users];
+      const userIndex = users.findIndex((user) => user.id === id);
+      newUsers[userIndex] = { ...data, id };
+
+      setUsers(newUsers);
+    }
+
+    // navega para a página de listagem de usuários
     navigate("/users/");
   };
 
@@ -169,7 +203,7 @@ export default function Form() {
         />
       </Stack>
 
-   {/** <FormTitle title="Endereço" />*/}
+      <FormTitle title="Endereço" />
 
       <Stack
         direction="row"
