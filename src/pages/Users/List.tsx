@@ -1,15 +1,21 @@
-import DataTable from "../../components/DataTable";
-import { IconButton, Stack } from "@mui/material";
+import { Box, Button, IconButton, Paper, Stack } from "@mui/material";
 import {
   GridColDef,
   GridValueGetterParams,
   GridRenderCellParams,
 } from "@mui/x-data-grid";
+import { Link as RouterLink } from "react-router-dom";
 
 // ICONS
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
+
+// COMPONENTS
+import PageTitle from "../../components/PageTitle";
+import DataTable from "../../components/DataTable";
+import Breadcumbs from "../../components/Breadcumbs";
 
 function List() {
   const onCall = (params: GridRenderCellParams) => {
@@ -102,7 +108,27 @@ function List() {
   ];
   return (
     <div>
-      <DataTable columns={columns} rows={users} />
+      <Stack direction={{ xs: "column", sm: "row" }} gap={1} mb={2}>
+        <Box sx={{ flexGrow: 1 }}>
+          <PageTitle title="Lista" />
+          <Breadcumbs
+            path={[{ label: "Usuarios", to: "/users" }, { label: "Lista" }]}
+          />
+        </Box>
+        <Box sx={{ alignSelf: "center" }}>
+          <Button
+            component={RouterLink}
+            to="/users/new"
+            variant="contained"
+            startIcon={<PersonAddAltIcon />}
+          >
+            Novo Usuário
+          </Button>
+        </Box>
+      </Stack>
+      <Paper>
+        <DataTable rows={users} columns={columns} />
+      </Paper>
     </div>
   );
 }
